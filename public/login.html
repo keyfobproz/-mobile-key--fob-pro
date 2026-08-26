@@ -37,96 +37,17 @@
     </div>
 
     <script>
-        // Define handleLogin as a named function for better reliability
-        async function handleLogin() {
-            try {
-                const emailInput = document.getElementById('email');
-                const passwordInput = document.getElementById('password');
-                const errorMsg = document.getElementById('error-msg');
-                const loginBtn = document.getElementById('login-btn');
-
-                const email = emailInput ? emailInput.value.trim() : '';
-                const password = passwordInput ? passwordInput.value.trim() : '';
-
-                if (!email || !password) {
-                    alert("Please enter both email and password.");
-                    return;
-                }
-
-                if (loginBtn) {
-                    loginBtn.disabled = true;
-                    loginBtn.textContent = 'Signing in...';
-                }
-                if (errorMsg) errorMsg.classList.add('hidden');
-
-                if (!supabase || !supabase.auth) {
-                    const msg = 'Connection error: Could not connect to Supabase. Check network/adblocker.';
-                    alert(msg);
-                    if (errorMsg) {
-                        errorMsg.textContent = msg;
-                        errorMsg.classList.remove('hidden');
-                    }
-                    if (loginBtn) {
-                        loginBtn.disabled = false;
-                        loginBtn.textContent = 'Sign In';
-                    }
-                    return;
-                }
-
-                const authPromise = supabase.auth.signInWithPassword({ email, password });
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Sign in timed out.')), 6000)
-                );
-
-                const result = await Promise.race([authPromise, timeoutPromise]);
-
-                if (result && result.error) {
-                    const msg = "Login Error: " + result.error.message;
-                    alert(msg);
-                    if (errorMsg) {
-                        errorMsg.textContent = msg;
-                        errorMsg.classList.remove('hidden');
-                    }
-                    if (loginBtn) {
-                        loginBtn.disabled = false;
-                        loginBtn.textContent = 'Sign In';
-                    }
-                } else if (result && result.data && result.data.session) {
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                    window.location.href = 'dashboard.html';
-                } else {
-                    const msg = 'Login failed: ' + JSON.stringify(result);
-                    alert(msg);
-                    if (errorMsg) {
-                        errorMsg.textContent = msg;
-                        errorMsg.classList.remove('hidden');
-                    }
-                    if (loginBtn) {
-                        loginBtn.disabled = false;
-                        loginBtn.textContent = 'Sign In';
-                    }
-                }
-            } catch (err) {
-                alert("CRITICAL ERROR: " + (err.message || err));
-                const loginBtn = document.getElementById('login-btn');
-                if (loginBtn) {
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Sign In';
-                }
-            }
-        };
-
-        // Initialize Supabase Client
+        // 1. Initialize Supabase Client FIRST
         let supabase = null;
         try {
             if (window.supabase && window.supabase.createClient) {
                 supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
             }
         } catch (e) {
-            console.error("Failed to initialize Supabase:", e);
+            alert("Supabase init error: " + e.message);
         }
 
-        // Check session
+        // 2. Check existing session
         async function checkExistingSession() {
             if (!supabase || !supabase.auth) return;
             try {
@@ -138,7 +59,76 @@
         }
         checkExistingSession();
 
-        // Attach event listener after DOM loads
+        // 3. Handle Login function
+        async function handleLogin() {
+            const dbg = document.getElementById('debug-log');
+            function log(msg) {
+                console.log(msg);
+                if (dbg) dbg.textContent = msg;
+            }
+
+            try {
+                log("1. Button clicked...");
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const errorMsg = document.getElementById('error-msg');
+                const loginBtn = document.getElementById('login-btn');
+
+                const email = emailInput ? emailInput.value.trim() : '';
+                const password = passwordInput ? passwordInput.value.trim() : '';
+
+                if (!email || !password) {
+                    log("Error: Missing email or password.");
+                    alert("Please enter both email and password.");
+                    return;
+                }
+
+                log("2. Authenticating " + email + "...");
+                if (loginBtn) {
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Signing in...';
+                }
+
+                if (!supabase || !supabase.auth) {
+                    log("Error: Supabase client not initialized.");
+                    alert('Connection error: Could not connect to Supabase.');
+                    if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Sign In'; }
+                    return;
+                }
+
+                log("3. Calling Supabase signInWithPassword...");
+                const authPromise = supabase.auth.signInWithPassword({ email, password });
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Sign in timed out.')), 6000)
+                );
+
+                const result = await Promise.race([authPromise, timeoutPromise]);
+
+                if (result && result.error) {
+                    log("Supabase Error: " + result.error.message);
+                    alert("Login Error: " + result.error.message);
+                    if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Sign In'; }
+                } else if (result && result.data && result.data.session) {
+                    log("4. Login success! Redirecting to dashboard...");
+                    await new Promise(r => setTimeout(r, 400));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    log("Error: No session returned from Supabase.");
+                    alert("Login failed: " + JSON.stringify(result));
+                    if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Sign In'; }
+                }
+            } catch (err) {
+                log("Exception: " + err.message);
+                alert("CRITICAL EXCEPTION: " + err.message);
+                const loginBtn = document.getElementById('login-btn');
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                }
+            }
+        }
+
+        // 4. Attach click listener after DOM loads
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('login-btn');
             if (btn) btn.addEventListener('click', handleLogin);
