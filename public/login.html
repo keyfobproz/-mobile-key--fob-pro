@@ -36,8 +36,8 @@
     </div>
 
     <script>
-        // Define handleLogin globally first
-        window.handleLogin = async function() {
+        // Define handleLogin as a named function for better reliability
+        async function handleLogin() {
             try {
                 const emailInput = document.getElementById('email');
                 const passwordInput = document.getElementById('password');
