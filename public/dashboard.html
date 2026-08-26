@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Mobile Key Fob Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const { createClient } = window.supabase;
+        const supabase = createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
+        
+        // Map Initialization
+        let map;
+        let markers = [];
+
+        function initMap() {
+            // Default center (USA) - will re-center based on markers
+            map = new google.maps.Map(document.getElementById('service-map'), {
+                zoom: 4,
+                center: { lat: 37.0902, lng: -95.7129 },
+                styles: [
+                    { "featureType": "all", "elementType": "labels.text.fill", "stylers": [{ "color": "#ffffff" }] },
+                    { "featureType": "all", "elementType": "labels.text.stroke", "stylers": [{ "color": "#000000" }, { "lightness": 13 }] },
+                    { "featureType": "administrative", "elementType": "geometry.fill", "stylers": [{ "color": "#000000" }] },
+                    { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#1E293B" }] },
+                    { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#1E293B" }] },
+                    { "featureType": "road", "elementType": "geometry.fill", "stylers": [{ "color": "#2563EB" }, { "lightness": -60 }] },
+                    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#0F172A" }] }
+                ]
+            });
+            updateMapMarkers();
+        }
+
+        async function updateMapMarkers() {
+            if (!map || !allBookings.length) return;
+            
+            // Clear existing markers
+            markers.forEach(m => m.setMap(null));
+            markers = [];
+            
+            const geocoder = new google.maps.Geocoder();
+            const bounds = new google.maps.LatLngBounds();
+
+            for (const booking of allBookings) {
+                if (!booking.address) continue;
+
+                geocoder.geocode({ address: booking.address }, (results, status) => {
+                    if (status === 'OK') {
+                        const marker = new google.maps.Marker({
+                            map: map,
+                            position: results[0].geometry.location,
+                            title: `${booking.name} - ${booking.status}`,
+                            icon: booking.status === 'Pending' ? 'http://maps.google.com/mapfiles/ms/icons/orange-dot.png' : 
+                                  booking.status === 'In Route' ? 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png' :
+                                  'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                        });
+                        
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `<div class="p-2 text-slate-800">
+                                <p class="font-bold">${booking.name}</p>
+                                <p class="text-xs">${booking.address}</p>
+                                <p class="text-xs font-semibold mt-1">Status: ${booking.status}</p>
+                            </div>`
+                        });
+
+                        marker.addListener('click', () => infoWindow.open(map, marker));
+                        markers.push(marker);
+                        bounds.extend(results[0].geometry.location);
+                        map.fitBounds(bounds);
+                    }
+                });
+            }
+        }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCIArXXAYdfjPJbWJheWMPF6xpg4A2bz0w&callback=initMap" async defer></script>
+</head>
+<body class="bg-gray-100 font-sans flex min-h-screen">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-slate-800 text-white p-6 flex flex-col justify-between">
+        <div>
+            <h2 class="text-xl font-bold mb-8">Fob Pro Admin</h2>
+            <nav class="space-y-4">
+                <button onclick="switchTab('dashboard-view')" id="nav-dashboard-view" class="w-full text-left block py-2 px-4 bg-blue-600 rounded font-medium transition">Dashboard</button>
+                <button onclick="switchTab('appointments-view')" id="nav-appointments-view" class="w-full text-left block py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Appointments</button>
+                <button onclick="switchTab('fleet-view')" id="nav-fleet-view" class="w-full text-left block py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Fleet Inventory</button>
+                <button onclick="switchTab('financials-view')" id="nav-financials-view" class="w-full text-left block py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Financials</button>
+            </nav>
+        </div>
+        <button onclick="logoutAdmin()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition mt-auto">Logout</button>
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+        <!-- Live Metrics -->
+        <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Gross Revenue</p>
+                <p id="metric-revenue" class="text-2xl font-bold">$0</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Net Margin</p>
+                <p id="metric-margin" class="text-2xl font-bold">47%</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Active Techs</p>
+                <p class="text-2xl font-bold">8</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Pending</p>
+                <p class="text-2xl font-bold">0</p>
+            </div>
+        </section>
+
+        <!-- TAB VIEWS CONTAINER -->
+
+        <!-- 1. Dashboard View (Overview) -->
+        <div id="dashboard-view" class="tab-view space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Welcome Card -->
+                <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow h-fit">
+                    <h3 class="text-xl font-bold mb-4">Quick Overview</h3>
+                    <p class="text-gray-600 mb-4">Welcome to your Mobile Key Fob Pro command center.</p>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3 text-sm text-slate-700">
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <span>Orange: Pending Jobs</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-700">
+                            <span class="w-3 h-3 rounded-full bg-blue-600"></span>
+                            <span>Blue: Techs In Route</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-700">
+                            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                            <span>Green: Completed Jobs</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Map Card -->
+                <div class="lg:col-span-2 bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-lg font-bold mb-3 px-2">Service Area Map</h3>
+                    <div id="service-map" class="w-full h-96 rounded-lg bg-slate-200">
+                        <p class="text-center py-40 text-gray-400 italic">Initializing map engine...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Appointments View (Dispatch Table) -->
+        <div id="appointments-view" class="tab-view space-y-8 hidden">
+            <section class="bg-white p-6 rounded-lg shadow">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <h3 class="text-xl font-bold">Current Appointments</h3>
+                    
+                    <!-- Filter & Search Controls -->
+                    <div class="flex flex-wrap items-center gap-3">
+                        <input type="text" id="search-input" placeholder="Search customer, vehicle, address..." class="border rounded-lg px-3 py-1.5 text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="flex border rounded-lg overflow-hidden bg-gray-50 text-xs">
+                            <button class="filter-btn px-3 py-1.5 font-medium bg-blue-600 text-white" data-status="All">All</button>
+                            <button class="filter-btn px-3 py-1.5 font-medium hover:bg-gray-200" data-status="Pending">Pending</button>
+                            <button class="filter-btn px-3 py-1.5 font-medium hover:bg-gray-200" data-status="In Route">In Route</button>
+                            <button class="filter-btn px-3 py-1.5 font-medium hover:bg-gray-200" data-status="Completed">Completed</button>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="py-2">Customer</th>
+                            <th class="py-2">Vehicle</th>
+                            <th class="py-2">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookings-table-body">
+                        <!-- Dynamic bookings will be inserted here -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- 3. Fleet Inventory View -->
+        <div id="fleet-view" class="tab-view space-y-8 hidden">
+            <section class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-xl font-bold mb-4">Van & Key Fob Inventory</h3>
+                <p class="text-gray-600 mb-6">Manage stock levels across your active mobile programming vans.</p>
+                <div id="fleet-inventory-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Dynamic inventory -->
+                </div>
+            </section>
+        </div>
+
+        <!-- 4. Financials View -->
+        <div id="financials-view" class="tab-view space-y-8 hidden">
+            <section class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-xl font-bold mb-6">Financial Ledger & Reports</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-slate-50 border p-5 rounded-lg">
+                        <p class="text-sm text-gray-500">Total Gross Revenue</p>
+                        <p id="fin-gross" class="text-3xl font-bold text-slate-800 mt-1">$0.00</p>
+                    </div>
+                    <div class="bg-slate-50 border p-5 rounded-lg">
+                        <p class="text-sm text-gray-500">Total Product Costs</p>
+                        <p id="fin-costs" class="text-3xl font-bold text-red-600 mt-1">$0.00</p>
+                    </div>
+                    <div class="bg-slate-50 border p-5 rounded-lg">
+                        <p class="text-sm text-gray-500">Net Profit</p>
+                        <p id="fin-profit" class="text-3xl font-bold text-green-600 mt-1">$0.00</p>
+                    </div>
+                </div>
+
+                <h4 class="text-lg font-bold mb-3">Completed Jobs Ledger</h4>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b bg-gray-50">
+                            <th class="py-2 px-3">Customer</th>
+                            <th class="py-2 px-3">Vehicle</th>
+                            <th class="py-2 px-3">Gross</th>
+                            <th class="py-2 px-3">Cost</th>
+                            <th class="py-2 px-3">Net Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financials-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- Ledger Drawer -->
+        <div id="drawer" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out p-6 z-50">
+            <button onclick="toggleDrawer()" class="mb-4 text-gray-500 font-bold">✕ Close</button>
+            <h3 class="text-xl font-bold mb-4">Job Details</h3>
+            <div id="drawer-content" class="space-y-4 text-slate-800">
+                <!-- Selected job details populated by JS -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check authentication on load
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+            }
+        }
+        checkAuth();
+
+        async function logoutAdmin() {
+            await supabase.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
+        let allBookings = [];
+        let currentFilter = 'All';
+        let searchQuery = '';
+
+        function toggleDrawer() {
+            document.getElementById('drawer').classList.toggle('translate-x-full');
+        }
+
+        function renderBookings() {
+            const tbody = document.getElementById('bookings-table-body');
+            tbody.innerHTML = '';
+
+            const filtered = allBookings.filter(booking => {
+                const matchesStatus = currentFilter === 'All' || booking.status === currentFilter;
+                const query = searchQuery.toLowerCase();
+                const matchesQuery = !query || 
+                    (booking.name && booking.name.toLowerCase().includes(query)) ||
+                    (booking.phone && booking.phone.toLowerCase().includes(query)) ||
+                    (booking.make && booking.make.toLowerCase().includes(query)) ||
+                    (booking.model && booking.model.toLowerCase().includes(query)) ||
+                    (booking.address && booking.address.toLowerCase().includes(query));
+
+                return matchesStatus && matchesQuery;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="py-4 text-center text-gray-500">No matching appointments found.</td></tr>';
+                return;
+            }
+
+            filtered.forEach(booking => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b hover:bg-gray-50 cursor-pointer';
+
+                const statusColor = booking.status === 'In Route' 
+                    ? 'bg-blue-100 text-blue-800' 
+                    : booking.status === 'Completed' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-amber-100 text-amber-800';
+
+                tr.innerHTML = `
+                    <td class="py-3 font-medium text-slate-800">
+                        <div class="font-bold">${booking.name || 'Anonymous Customer'}</div>
+                        <div class="text-xs text-gray-500">${booking.phone || 'No phone'}</div>
+                    </td>
+                    <td class="py-3 text-slate-600">
+                        <div class="font-medium">${booking.year || ''} ${booking.make || ''} ${booking.model || ''}</div>
+                        <div class="text-xs text-gray-400">${booking.address || 'N/A'} - ${booking.time || 'N/A'}</div>
+                    </td>
+                    <td class="py-3"><span class="${statusColor} px-2 py-1 rounded text-sm">${booking.status || 'Pending'}</span></td>
+                `;
+
+                tr.addEventListener('click', () => {
+                    const drawerContent = document.getElementById('drawer-content');
+                    drawerContent.innerHTML = `
+                        <div class="border-b pb-3">
+                            <p class="text-xs text-gray-500 uppercase">Customer Contact</p>
+                            <p class="font-bold text-lg">${booking.name || 'Anonymous Customer'}</p>
+                            <p class="text-sm font-medium text-blue-600"><a href="tel:${booking.phone}">${booking.phone || 'No phone number provided'}</a></p>
+                            <p class="text-sm text-gray-600">${booking.email || 'No email provided'}</p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <p class="text-xs text-gray-500 uppercase">Vehicle</p>
+                            <p class="font-semibold">${booking.year || ''} ${booking.make || ''} ${booking.model || ''}</p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <p class="text-xs text-gray-500 uppercase">Location & Time</p>
+                            <p class="font-semibold">${booking.address || 'N/A'}</p>
+                            <p class="text-sm text-gray-600">${booking.time || 'N/A'}</p>
+                        </div>
+                        <div class="border-b pb-3">
+                            <p class="text-xs text-gray-500 uppercase mb-1">Update Status</p>
+                            <div class="flex gap-2">
+                                <select id="status-select-${booking.id}" class="border rounded p-2 text-sm flex-1 bg-white">
+                                    <option value="Pending" ${booking.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                    <option value="In Route" ${booking.status === 'In Route' ? 'selected' : ''}>In Route</option>
+                                    <option value="Completed" ${booking.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                    <option value="Cancelled" ${booking.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                </select>
+                                <button onclick="updateJobStatus(${booking.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-medium transition">Save</button>
+                            </div>
+                        </div>
+                        <div class="border-b pb-3">
+                            <p class="text-xs text-gray-500 uppercase">Financials</p>
+                            <div class="flex justify-between mt-1 text-sm"><span>Gross Revenue:</span><span class="font-bold">$169.00</span></div>
+                            <div class="flex justify-between text-sm"><span>Product Cost:</span><span class="font-bold">-$40.00</span></div>
+                            <div class="flex justify-between text-sm"><span>Tech Commission:</span><span class="font-bold">-$50.00</span></div>
+                        </div>
+                    `;
+                    toggleDrawer();
+                });
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function loadBookings() {
+            const { data: bookings, error } = await supabase
+                .from('bookings')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching bookings:', error);
+                return;
+            }
+
+            allBookings = bookings || [];
+
+            // Calculate Metrics
+            const completedJobs = allBookings.filter(b => b.status === 'Completed');
+            const totalGross = completedJobs.length * 169;
+            const totalCosts = completedJobs.length * 90; // $40 product + $50 tech
+            const totalProfit = totalGross - totalCosts;
+
+            // Update Header Metrics
+            document.getElementById('metric-revenue').textContent = `$${totalGross.toLocaleString()}`;
+            document.getElementById('metric-margin').textContent = totalGross > 0 ? `${Math.round((totalProfit / totalGross) * 100)}%` : '0%';
+            
+            const pendingCount = allBookings.filter(b => b.status === 'Pending').length;
+            const pendingMetric = document.querySelector('main section div:nth-child(4) p.text-2xl');
+            if (pendingMetric) pendingMetric.textContent = pendingCount;
+
+            // Update Financials View
+            document.getElementById('fin-gross').textContent = `$${totalGross.toLocaleString()}.00`;
+            document.getElementById('fin-costs').textContent = `-$${totalCosts.toLocaleString()}.00`;
+            document.getElementById('fin-profit').textContent = `$${totalProfit.toLocaleString()}.00`;
+
+            const finTableBody = document.getElementById('financials-table-body');
+            finTableBody.innerHTML = '';
+            
+            if (completedJobs.length === 0) {
+                finTableBody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-gray-500">No completed jobs to report.</td></tr>';
+            } else {
+                completedJobs.forEach(job => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'border-b hover:bg-gray-50';
+                    tr.innerHTML = `
+                        <td class="py-3 px-3">
+                            <div class="font-bold">${job.name || 'N/A'}</div>
+                            <div class="text-xs text-gray-500">${job.phone || ''}</div>
+                        </td>
+                        <td class="py-3 px-3 text-sm text-gray-600">${job.year || ''} ${job.make || ''} ${job.model || ''}</td>
+                        <td class="py-3 px-3 font-semibold text-slate-800">$169.00</td>
+                        <td class="py-3 px-3 text-red-600">-$90.00</td>
+                        <td class="py-3 px-3 font-bold text-green-600">+$79.00</td>
+                    `;
+                    finTableBody.appendChild(tr);
+                });
+            }
+
+            renderBookings();
+        }
+
+        function switchTab(tabId) {
+            // Hide all views
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            // Show selected view
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Update Nav styles
+            document.querySelectorAll('nav button').forEach(btn => {
+                btn.classList.remove('bg-blue-600');
+                btn.classList.add('hover:bg-slate-700');
+            });
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.classList.add('bg-blue-600');
+            activeBtn.classList.remove('hover:bg-slate-700');
+        }
+
+        async function updateJobStatus(id) {
+            const selectEl = document.getElementById(`status-select-${id}`);
+            if (!selectEl) return;
+            const newStatus = selectEl.value;
+
+            const { error } = await supabase
+                .from('bookings')
+                .update({ status: newStatus })
+                .eq('id', id);
+
+            if (error) {
+                alert('Error updating status: ' + error.message);
+            } else {
+                toggleDrawer();
+                loadBookings();
+            }
+        }
+
+        // Setup Event Listeners for Filters & Search
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('bg-blue-600', 'text-white');
+                    b.classList.add('hover:bg-gray-200');
+                });
+                e.target.classList.add('bg-blue-600', 'text-white');
+                e.target.classList.remove('hover:bg-gray-200');
+                currentFilter = e.target.dataset.status;
+                renderBookings();
+            });
+        });
+
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            renderBookings();
+        });
+
+        // Supabase Realtime Channel Listener
+        supabase
+            .channel('public:bookings')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, payload => {
+                loadBookings();
+            })
+            .subscribe();
+
+        async function loadFleet() {
+            const { data: fleet, error } = await supabase.from('fleet_inventory').select('*');
+            if (error) return console.error('Fleet error:', error);
+
+            const container = document.getElementById('fleet-inventory-container');
+            container.innerHTML = fleet.map(item => `
+                <div class="border p-4 rounded-lg bg-white shadow-sm">
+                    <p class="font-bold text-lg">${item.item_name}</p>
+                    <p class="text-2xl ${item.quantity < 10 ? 'text-red-600' : 'text-blue-600'} font-semibold mt-2">${item.quantity} units</p>
+                    <p class="text-xs text-gray-500 mt-1">Last Updated: ${new Date(item.updated_at).toLocaleDateString()}</p>
+                </div>
+            `).join('');
+        }
+
+        // Fetch on load
+        loadBookings();
+        loadFleet();
+    </script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Mobile Key Fob Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
+    </script>
+</head>
+<body class="bg-slate-800 flex items-center justify-center min-h-screen p-6 font-sans">
+
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-md w-full">
+        <h2 class="text-2xl font-bold text-slate-800 text-center mb-2">Admin Portal Login</h2>
+        <p class="text-slate-500 text-center text-sm mb-6">Enter your credentials to access dispatch management.</p>
+
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Email Address</label>
+                <input type="email" id="email" required placeholder="admin@keyfobpro.com" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Password</label>
+                <input type="password" id="password" required placeholder="••••••••" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+            </div>
+            
+            <button type="submit" id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">Sign In</button>
+        </form>
+
+        <p id="error-msg" class="text-red-500 text-sm text-center mt-4 hidden"></p>
+    </div>
+
+    <script>
+        // Check if user is already logged in
+        async function checkExistingSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                window.location.href = 'dashboard.html';
+            }
+        }
+        checkExistingSession();
+
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const loginBtn = document.getElementById('login-btn');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+            errorMsg.classList.add('hidden');
+
+            try {
+                const authPromise = supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sign in timed out. Please check your network or credentials.')), 6000));
+
+                const result = await Promise.race([authPromise, timeoutPromise]);
+
+                if (result && result.error) {
+                    errorMsg.textContent = result.error.message;
+                    errorMsg.classList.remove('hidden');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                } else if (result && result.data && result.data.session) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorMsg.textContent = 'Login failed. Please verify your credentials.';
+                    errorMsg.classList.remove('hidden');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                }
+            } catch (err) {
+                errorMsg.textContent = err.message || 'An unexpected error occurred.';
+                errorMsg.classList.remove('hidden');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "plugin": "org.smartide.plugin.web",
+  "run": "echo 'change command from .si.json file'",
+  "intelligence": {
+    ".html": {
+      "enabled": true,
+      "run": "vscode-html-language-server --stdio"
+    }
+  }
+}

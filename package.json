@@ -1,0 +1,11 @@
+{
+  "name": "mobile-key-fob-pro",
+  "version": "1.0.0",
+  "description": "Mobile automotive locksmith and key fob programming service",
+  "scripts": {
+    "build": "npx tailwindcss -i ./src/input.css -o ./public/output.css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}

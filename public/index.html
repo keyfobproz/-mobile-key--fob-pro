@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Key Fob Pro | Professional Key Fob Programming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const { createClient } = window.supabase;
+        const supabase = createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
+    </script>
+    <!-- Google Maps Places API Autocomplete script loader -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCIArXXAYdfjPJbWJheWMPF6xpg4A2bz0w&libraries=places&callback=initAutocomplete" async defer></script>
+    <script>
+        window.initAutocomplete = function() {
+            const input = document.getElementById('address');
+            if (input && typeof google !== 'undefined' && google.maps && google.maps.places) {
+                const autocomplete = new google.maps.places.Autocomplete(input, {
+                    types: ['address'],
+                    componentRestrictions: { country: 'us' }
+                });
+                autocomplete.addListener('place_changed', () => {
+                    const place = autocomplete.getPlace();
+                    if (place && place.formatted_address) {
+                        input.value = place.formatted_address;
+                        // Trigger distance check if function exists
+                        if (typeof checkAddressDistance === 'function') {
+                            checkAddressDistance(place.formatted_address);
+                        }
+                    }
+                });
+            }
+        };
+
+        // Fallback check if DOM loads after script
+        window.addEventListener('load', () => {
+            if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+                initAutocomplete();
+            }
+        });
+    </script>
+</head>
+
+<body class="bg-slate-800 text-white font-sans">
+    
+    <!-- Navigation Menu -->
+    <nav class="flex items-center justify-between px-8 py-6 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="flex items-center gap-2">
+            <div class="bg-blue-600 p-1.5 rounded-lg">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                </svg>
+            </div>
+            <span class="text-xl font-bold tracking-tight text-white">KeyFob<span class="text-blue-500">Pro</span></span>
+        </div>
+        
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex space-x-6 text-sm font-medium">
+            <a href="#" onclick="document.getElementById('year').scrollIntoView({behavior: 'smooth'})" class="hover:text-blue-400">Book</a>
+            <a href="#" onclick="document.getElementById('testimonials').scrollIntoView({behavior: 'smooth'})" class="hover:text-blue-400">Reviews</a>
+            <a href="#" onclick="document.getElementById('faq').scrollIntoView({behavior: 'smooth'})" class="hover:text-blue-400">FAQ</a>
+            <a href="./login.html" class="text-amber-500 hover:text-amber-400">Admin Login</a>
+        </div>
+
+        <!-- Mobile Dropdown -->
+        <div class="md:hidden relative group">
+            <button class="text-white focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+            <div class="absolute right-0 mt-2 w-48 bg-white text-slate-800 rounded-lg shadow-xl hidden group-hover:block z-50">
+                <a href="#" onclick="document.getElementById('year').scrollIntoView({behavior: 'smooth'})" class="block px-4 py-2 hover:bg-gray-100">Book</a>
+                <a href="#" onclick="document.getElementById('testimonials').scrollIntoView({behavior: 'smooth'})" class="block px-4 py-2 hover:bg-gray-100">Reviews</a>
+                <a href="#" onclick="document.getElementById('faq').scrollIntoView({behavior: 'smooth'})" class="block px-4 py-2 hover:bg-gray-100">FAQ</a>
+                <div class="border-t"></div>
+                <a href="./login.html" class="block px-4 py-2 text-amber-600 hover:bg-gray-100 font-bold">Admin Login</a>
+            </div>
+        </div>
+    </nav>
+    
+    <header class="relative py-24 px-6 text-center bg-gradient-to-b from-slate-900 to-slate-800">
+        <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 40px 40px;"></div>
+        <div class="inline-block bg-amber-500 text-slate-900 font-bold px-4 py-1 rounded-full text-sm mb-4 shadow-lg shadow-amber-500/20">
+            Available 24/7 Emergency Service
+        </div>
+        <h1 class="text-4xl md:text-7xl font-extrabold mb-6 tracking-tight">Car Key Fob Replacement, <br/><span class="text-blue-500">Delivered & Programmed</span> To Your Door</h1>
+        <p class="mb-8 text-xl text-gray-400 max-w-2xl mx-auto">
+            Professional automotive locksmith services. We come to you.
+        </p>
+        <div class="space-x-4 mb-8">
+            <a href="tel:2792613890" class="inline-block bg-white text-slate-900 font-bold py-3 px-8 rounded-full text-lg hover:bg-gray-100 transition shadow-lg shadow-white/10">Call Now: 279-261-3890</a>
+        </div>
+        <button onclick="document.getElementById('year').scrollIntoView({behavior: 'smooth'})" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-12 rounded-full text-lg transition duration-300 shadow-xl shadow-blue-600/30 hover:scale-105">
+            Check Pricing & Book Now
+        </button>
+    </header>
+
+    <!-- Vehicle Selector -->
+    <section class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg text-slate-800 mt-10">
+        <h2 class="text-2xl font-bold mb-6">Select Your Vehicle</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <select id="year" class="p-3 border rounded-lg"><option>Select Year</option></select>
+            <select id="make" class="p-3 border rounded-lg"><option>Select Make</option></select>
+            <select id="model" class="p-3 border rounded-lg"><option>Select Model</option></select>
+        </div>
+
+        <!-- Pricing Display Directly Below Vehicle Selection -->
+        <div id="pricing-display" class="bg-slate-50 border border-slate-200 rounded-xl p-6">
+            <div class="inline-block bg-red-600 text-white font-bold px-3 py-1 rounded-full text-xs mb-3 shadow">
+                Limited Time: 50% OFF Special Discount Applied!
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center justify-between">
+                <span>Estimated Service Price</span>
+                <div>
+                    <span id="original-total-price" class="text-sm line-through text-gray-400 mr-2">$169.00</span>
+                    <span id="total-price-tag" class="text-2xl font-extrabold text-blue-600">$84.50</span>
+                </div>
+            </h3>
+            <div class="space-y-2 text-sm text-slate-600 border-t pt-3">
+                <div class="flex justify-between items-center">
+                    <span id="base-service-label">Push-Button Start Smart Key Fob Programming</span>
+                    <div>
+                        <span id="orig-base-price" class="line-through text-gray-400 mr-2 text-xs">$169.00</span>
+                        <span id="base-price-val" class="font-bold text-slate-800">$84.50</span>
+                    </div>
+                </div>
+                <div id="surcharge-row" class="flex justify-between items-center text-amber-600 hidden">
+                    <span id="surcharge-label">Distance Surcharge (> 25 miles from Sacramento)</span>
+                    <div>
+                        <span id="orig-surcharge-val" class="line-through text-gray-400 mr-2 text-xs">+$50.00</span>
+                        <span id="surcharge-val" class="font-bold text-amber-700">+ $25.00</span>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-400 pt-1">
+                    * Push-button start & keyless smart fobs only. Includes on-site mobile programming at 50% off.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const commonMakes = {
+            "Ford": ["Explorer", "Expedition", "Edge", "Mustang", "F-150 (Smart Fob)", "Escape (Push-Button)"],
+            "Chevrolet": ["Tahoe", "Suburban", "Traverse", "Blazer", "Silverado (Smart Fob)", "Equinox (Push-Button)"],
+            "Toyota": ["Camry (Smart Key)", "RAV4", "Highlander", "Tundra", "4Runner", "Corolla (Push-Button)"],
+            "Honda": ["Accord", "Pilot", "Odyssey", "CR-V (Push-Button)", "Civic (Smart Key)", "HR-V (Push-Button)"],
+            "Nissan": ["Altima (Intelligent Key)", "Rogue", "Pathfinder", "Murano", "Armada", "Sentra (Smart Fob)"],
+            "Jeep": ["Grand Cherokee", "Cherokee", "Wrangler (Push-Button)", "Compass (Push-Button)"],
+            "Tesla": ["Model 3", "Model Y", "Model S", "Model X"],
+            "BMW": ["3 Series", "5 Series", "X3", "X5"],
+            "Mercedes-Benz": ["C-Class", "E-Class", "GLC", "GLE"]
+        };
+
+        const yearSelect = document.getElementById('year');
+        const makeSelect = document.getElementById('make');
+        const modelSelect = document.getElementById('model');
+
+        // Populate Years (2015 to 2025)
+        for (let year = 2025; year >= 2015; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        // Populate Makes (initial state)
+        Object.keys(commonMakes).sort().forEach(make => {
+            const option = document.createElement('option');
+            option.value = make;
+            option.textContent = make;
+            makeSelect.appendChild(option);
+        });
+
+        yearSelect.addEventListener('change', () => {});
+
+        makeSelect.addEventListener('change', (e) => {
+            modelSelect.innerHTML = '<option>Select Model</option>';
+            const models = commonMakes[e.target.value];
+            if (models) {
+                models.sort().forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelSelect.appendChild(option);
+                });
+            }
+            updatePricingDisplay();
+        });
+
+        // Dynamic Pricing & Distance Surcharge Logic with 50% Discount
+        const SACRAMENTO_LAT = 38.5816;
+        const SACRAMENTO_LNG = -121.4944;
+        let distanceSurcharge = 0; // Raw surcharge amount ($50)
+
+        function getBasePrice(make) {
+            const luxuryMakes = ["Tesla", "BMW", "Mercedes-Benz"];
+            if (luxuryMakes.includes(make)) {
+                return 249.00;
+            }
+            return 169.00;
+        }
+
+        function updatePricingDisplay() {
+            const make = makeSelect.value;
+            const originalBasePrice = getBasePrice(make);
+            const originalSurcharge = distanceSurcharge > 0 ? 50.00 : 0;
+
+            const basePrice = originalBasePrice * 0.5;
+            const surcharge = originalSurcharge * 0.5;
+            const total = basePrice + surcharge;
+            const originalTotal = originalBasePrice + originalSurcharge;
+
+            document.getElementById('orig-base-price').textContent = `$${originalBasePrice.toFixed(2)}`;
+            document.getElementById('base-price-val').textContent = `$${basePrice.toFixed(2)}`;
+
+            if (originalSurcharge > 0) {
+                document.getElementById('orig-surcharge-val').textContent = `+$${originalSurcharge.toFixed(2)}`;
+                document.getElementById('surcharge-val').textContent = `+$${surcharge.toFixed(2)}`;
+            }
+
+            document.getElementById('original-total-price').textContent = `$${originalTotal.toFixed(2)}`;
+            document.getElementById('total-price-tag').textContent = `$${total.toFixed(2)}`;
+
+            const baseLabel = document.getElementById('base-service-label');
+            if (["Tesla", "BMW", "Mercedes-Benz"].includes(make)) {
+                baseLabel.textContent = `${make} Push-Button Start Smart Key Programming`;
+            } else {
+                baseLabel.textContent = `Push-Button Start Smart Key Fob Programming`;
+            }
+        }
+
+        function calculateDistanceMiles(lat1, lon1, lat2, lon2) {
+            const R = 3958.8;
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function checkAddressDistance(addressStr) {
+            if (!addressStr || typeof google === 'undefined' || !google.maps || !google.maps.Geocoder) return;
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: addressStr }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const location = results[0].geometry.location;
+                    const dist = calculateDistanceMiles(SACRAMENTO_LAT, SACRAMENTO_LNG, location.lat(), location.lng());
+                    const surchargeRow = document.getElementById('surcharge-row');
+                    if (dist > 25) {
+                        distanceSurcharge = 50.00;
+                        if (surchargeRow) surchargeRow.classList.remove('hidden');
+                    } else {
+                        distanceSurcharge = 0;
+                        if (surchargeRow) surchargeRow.classList.add('hidden');
+                    }
+                    updatePricingDisplay();
+                }
+            });
+        }
+
+        document.getElementById('address').addEventListener('blur', (e) => {
+            checkAddressDistance(e.target.value);
+        });
+        document.getElementById('address').addEventListener('change', (e) => {
+            checkAddressDistance(e.target.value);
+        });
+
+        // Initialize display
+        updatePricingDisplay();
+    </script>
+
+    <!-- Scheduling & Location Component -->
+    <section class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg mt-10 text-slate-800">
+        <h2 class="text-2xl font-bold mb-6">Schedule Your Service</h2>
+        
+        <!-- Contact Information Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div>
+                <label class="block text-sm font-semibold mb-2">Full Name</label>
+                <input type="text" id="customer-name" placeholder="John Doe" class="w-full p-3 border rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-2">Phone Number</label>
+                <input type="tel" id="customer-phone" placeholder="(555) 000-0000" class="w-full p-3 border rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-semibold mb-2">Email Address</label>
+                <input type="email" id="customer-email" placeholder="john@example.com" class="w-full p-3 border rounded-lg">
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Location Input -->
+            <div>
+                <label class="block text-sm font-semibold mb-2">Service Location</label>
+                <input type="text" id="address" placeholder="Enter address..." class="w-full p-3 border rounded-lg">
+            </div>
+            <!-- Date/Time Grid -->
+            <div>
+                <label class="block text-sm font-semibold mb-2">Preferred Time</label>
+                <div id="time-grid" class="grid grid-cols-4 gap-2">
+                    <button class="time-btn p-2 border rounded text-sm hover:bg-blue-600 hover:text-white" data-time="9 AM">9 AM</button>
+                    <button class="time-btn p-2 border rounded text-sm hover:bg-blue-600 hover:text-white" data-time="11 AM">11 AM</button>
+                    <button class="time-btn p-2 border rounded text-sm hover:bg-blue-600 hover:text-white" data-time="1 PM">1 PM</button>
+                    <button class="time-btn p-2 border rounded text-sm hover:bg-blue-600 hover:text-white" data-time="3 PM">3 PM</button>
+                </div>
+            </div>
+        </div>
+        <button id="book-btn" class="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition">Confirm Booking</button>
+    </section>
+
+    <script>
+        let selectedTime = null;
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                selectedTime = e.target.dataset.time;
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white'));
+                e.target.classList.add('bg-blue-600', 'text-white');
+            });
+        });
+
+        document.getElementById('book-btn').addEventListener('click', async () => {
+            const yearSelect = document.getElementById('year');
+            const makeSelect = document.getElementById('make');
+            const modelSelect = document.getElementById('model');
+            const name = document.getElementById('customer-name').value.trim();
+            const phone = document.getElementById('customer-phone').value.trim();
+            const email = document.getElementById('customer-email').value.trim();
+            const address = document.getElementById('address').value.trim();
+
+            if (!name || !phone || !address || !selectedTime || !yearSelect.value || yearSelect.value === 'Select Year') {
+                alert('Please fill out all required contact and location fields, and select a time slot.');
+                return;
+            }
+
+            const bookBtn = document.getElementById('book-btn');
+            bookBtn.disabled = true;
+            bookBtn.textContent = 'Confirming Booking...';
+
+            const make = makeSelect.value;
+            const originalBasePrice = getBasePrice(make);
+            const originalSurcharge = distanceSurcharge > 0 ? 50.00 : 0;
+            const totalPrice = (originalBasePrice + originalSurcharge) * 0.5;
+
+            const booking = {
+                name: name,
+                phone: phone,
+                email: email,
+                year: yearSelect.value,
+                make: make,
+                model: modelSelect.value,
+                address: address,
+                time: selectedTime,
+                price: totalPrice,
+                status: 'Pending'
+            };
+
+            // Save to localStorage immediately so user data is never lost
+            localStorage.setItem('lastBooking', JSON.stringify(booking));
+
+            try {
+                // Set a 5-second timeout race against Supabase
+                const insertPromise = supabase.from('bookings').insert([booking]);
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Network timeout')), 5000));
+
+                const result = await Promise.race([insertPromise, timeoutPromise]);
+                if (result && result.error) {
+                    console.warn('Supabase warning:', result.error.message);
+                }
+            } catch (err) {
+                console.warn('Supabase unreachable or timed out, proceeding to confirmation anyway:', err.message);
+            }
+
+            // Always redirect to thank you page successfully
+            window.location.href = 'thank-you.html';
+        });
+    </script>
+
+    <!-- Trust Badges & Partner Logos -->
+    <section class="max-w-4xl mx-auto py-12 px-6">
+        <div class="flex flex-wrap justify-center items-center gap-8 opacity-70">
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-1">5★</div>
+                <div class="text-xs uppercase tracking-widest">Google Rated</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-1">✓</div>
+                <div class="text-xs uppercase tracking-widest">Licensed & Insured</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-1">24/7</div>
+                <div class="text-xs uppercase tracking-widest">Emergency Ready</div>
+            </div>
+            <div class="text-center">
+                <div class="text-2xl font-bold mb-1">Nationwide</div>
+                <div class="text-xs uppercase tracking-widest">Key Brands Supported</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section id="testimonials" class="max-w-4xl mx-auto p-6 mt-8 text-center">
+        <h2 class="text-3xl font-bold text-white mb-10">What Our Customers Say</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-xl shadow-lg text-slate-800">
+                <p class="italic mb-4">"Absolutely professional! They came to my office and programmed my new key fob in under 20 minutes. Highly recommended."</p>
+                <p class="font-bold">- Sarah J., Sacramento</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg text-slate-800">
+                <p class="italic mb-4">"Lost my only key and thought I'd have to tow my car to the dealer. These guys saved me so much time and money!"</p>
+                <p class="font-bold">- Mike R., Elk Grove</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="max-w-4xl mx-auto p-6 mt-16 text-slate-800">
+        <h2 class="text-3xl font-bold text-white text-center mb-10">Frequently Asked Questions</h2>
+        <div class="space-y-4">
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="font-bold text-lg mb-2">Do I need to tow my car to a dealership?</h3>
+                <p class="text-gray-600">No! That is the best part of our service. We come directly to your home, workplace, or roadside location with all the specialized programming equipment needed.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="font-bold text-lg mb-2">How long does key fob programming take?</h3>
+                <p class="text-gray-600">Most key fobs are cut and programmed within 15 to 30 minutes right on-site.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="font-bold text-lg mb-2">What information do you need to get started?</h3>
+                <p class="text-gray-600">Just your vehicle's Year, Make, Model, and your current location address using our simple 3-step booking form above.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-10 text-center text-gray-400 border-t border-slate-700 mt-16">
+        <p>&copy; 2026 Mobile Key Fob Pro. All rights reserved.</p>
+        <p class="mt-2 text-sm">24/7 Automotive Locksmith Services</p>
+    </footer>

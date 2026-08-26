@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed | Mobile Key Fob Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white font-sans flex items-center justify-center min-h-screen p-6">
+
+    <div class="bg-white text-slate-800 rounded-2xl shadow-2xl p-8 max-w-lg w-full text-center">
+        <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl font-bold">
+            ✓
+        </div>
+        <h1 class="text-3xl font-extrabold mb-2">Booking Confirmed!</h1>
+        <p class="text-gray-600 mb-6">Thank you for choosing Mobile Key Fob Pro. Our mobile dispatch unit has received your request and a technician is heading your way.</p>
+        
+        <div id="appointment-details" class="bg-slate-50 border rounded-xl p-4 text-left mb-6 text-sm space-y-2">
+            <div class="flex justify-between"><span class="text-gray-500">Service:</span> <span class="font-semibold">Key Fob Replacement & Programming (50% OFF)</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Vehicle:</span> <span id="disp-vehicle" class="font-semibold">-</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Preferred Time:</span> <span id="disp-time" class="font-semibold">-</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Service Address:</span> <span id="disp-address" class="font-semibold truncate max-w-[200px]">-</span></div>
+            <div class="flex justify-between border-t pt-2"><span class="text-gray-500 font-bold">Total Price (50% OFF):</span> <span id="disp-price" class="font-bold text-amber-600 text-lg">$84.50</span></div>
+            <div class="flex justify-between"><span class="text-gray-500">Support Line:</span> <span class="font-semibold text-blue-600"><a href="tel:2792613890">279-261-3890</a></span></div>
+        </div>
+
+        <div class="space-y-3">
+            <button onclick="window.print()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-8 rounded-xl transition shadow-lg flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Print Appointment Details
+            </button>
+            <a href="index.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl w-full transition shadow-lg shadow-blue-600/30">
+                Book Another Service
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const savedBooking = localStorage.getItem('lastBooking');
+        if (savedBooking) {
+            try {
+                const booking = JSON.parse(savedBooking);
+                document.getElementById('disp-vehicle').textContent = `${booking.year || ''} ${booking.make || ''} ${booking.model || ''}`.trim() || 'Standard Vehicle';
+                document.getElementById('disp-time').textContent = booking.time || 'As Soon As Possible';
+                document.getElementById('disp-address').textContent = booking.address || 'On-site service';
+                if (booking.price) {
+                    document.getElementById('disp-price').textContent = `$${parseFloat(booking.price).toFixed(2)}`;
+                }
+            } catch (e) {
+                console.error('Error parsing saved booking', e);
+            }
+        }
+    </script>
+
+</body>
+</html>
