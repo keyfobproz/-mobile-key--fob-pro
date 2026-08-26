@@ -85,7 +85,9 @@
                 const result = await Promise.race([authPromise, timeoutPromise]);
 
                 if (result && result.error) {
-                    errorMsg.textContent = "Login Error: " + result.error.message;
+                    const msg = "Login Error: " + result.error.message;
+                    alert(msg);
+                    errorMsg.textContent = msg;
                     errorMsg.classList.remove('hidden');
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Sign In';
@@ -97,13 +99,17 @@
                     await new Promise(resolve => setTimeout(resolve, 300));
                     window.location.href = 'dashboard.html';
                 } else {
-                    errorMsg.textContent = 'Login failed. Response: ' + JSON.stringify(result);
+                    const msg = 'Login failed. Response: ' + JSON.stringify(result);
+                    alert(msg);
+                    errorMsg.textContent = msg;
                     errorMsg.classList.remove('hidden');
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Sign In';
                 }
             } catch (err) {
-                errorMsg.textContent = err.message || 'An unexpected error occurred.';
+                const msg = err.message || 'An unexpected error occurred.';
+                alert("CRITICAL ERROR: " + msg);
+                errorMsg.textContent = msg;
                 errorMsg.classList.remove('hidden');
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Sign In';
