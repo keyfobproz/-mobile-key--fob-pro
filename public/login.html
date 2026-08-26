@@ -29,9 +29,10 @@
                 <input type="password" id="password" required placeholder="••••••••" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
             
-            <button type="button" onclick="handleLogin()" id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">Sign In</button>
+            <button type="button" id="login-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition">Sign In</button>
         </form>
 
+        <div id="debug-log" class="mt-4 p-3 bg-slate-100 rounded text-xs font-mono text-slate-700 overflow-x-auto">Ready.</div>
         <p id="error-msg" class="text-red-500 text-sm text-center mt-4 hidden"></p>
     </div>
 
@@ -136,6 +137,12 @@
             } catch (err) {}
         }
         checkExistingSession();
+
+        // Attach event listener after DOM loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('login-btn');
+            if (btn) btn.addEventListener('click', handleLogin);
+        });
     </script>
 </body>
 </html>
