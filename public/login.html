@@ -114,17 +114,17 @@
                 const result = await Promise.race([authPromise, timeoutPromise]);
 
                 if (result && result.error) {
-                    errorMsg.textContent = result.error.message;
+                    errorMsg.textContent = "Login Error: " + result.error.message;
                     errorMsg.classList.remove('hidden');
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Sign In';
                 } else if (result && result.data && result.data.session) {
                     if (window.location.protocol === 'file:') {
-                        alert("Login Successful! Note: Since you are on file:// protocol, your session might not persist on the dashboard. Please use 'npm start' for the best experience.");
+                        alert("Login Successful! Note: Since you are on file:// protocol, your session might not persist on the dashboard. Please use Python server for the best experience.");
                     }
                     window.location.href = 'dashboard.html';
                 } else {
-                    errorMsg.textContent = 'Login failed. Please verify your credentials.';
+                    errorMsg.textContent = 'Login failed. Response: ' + JSON.stringify(result);
                     errorMsg.classList.remove('hidden');
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Sign In';
