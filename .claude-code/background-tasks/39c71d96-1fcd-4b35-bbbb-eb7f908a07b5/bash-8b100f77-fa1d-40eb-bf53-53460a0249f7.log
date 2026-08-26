@@ -1,0 +1,22 @@
+npm error code EACCES
+npm error syscall symlink
+npm error path ../cssesc/bin/cssesc
+npm error dest /storage/emulated/0/Documents/MOBILE KEY FOB PROGRAMMING/node_modules/.bin/cssesc
+npm error errno -13
+npm error Error: EACCES: permission denied, symlink '../cssesc/bin/cssesc' -> '/storage/emulated/0/Documents/MOBILE KEY FOB PROGRAMMING/node_modules/.bin/cssesc'
+npm error     at async symlink (node:internal/fs/promises:1002:10)
+npm error     at async Promise.all (index 0)
+npm error     at async Promise.all (index 0)
+npm error     at async RetryOperation.<anonymous> (/data/data/org.smartide.code/files/usr/lib/node_modules/npm/node_modules/@gar/promise-retry/lib/index.js:46:24) {
+npm error   errno: -13,
+npm error   code: 'EACCES',
+npm error   syscall: 'symlink',
+npm error   path: '../cssesc/bin/cssesc',
+npm error   dest: '/storage/emulated/0/Documents/MOBILE KEY FOB PROGRAMMING/node_modules/.bin/cssesc'
+npm error }
+npm error
+npm error The operation was rejected by your operating system.
+npm error It is likely you do not have the permissions to access this file as the current user
+npm error
+npm error If you believe this might be a permissions issue, please double-check the permissions of the file and its containing directories, or try running the command again as root/Administrator.
+npm error A complete log of this run can be found in: /data/data/org.smartide.code/files/home/.npm/_logs/2026-08-26T20_25_48_873Z-debug-0.log

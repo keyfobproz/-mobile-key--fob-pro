@@ -1,0 +1,8 @@
+::1 - - [26/Aug/2026 13:42:43] code 404, message File not found
+::1 - - [26/Aug/2026 13:42:43] "GET /login.html%20or%20http://127.0.0 HTTP/1.1" 404 -
+::1 - - [26/Aug/2026 13:42:46] code 404, message File not found
+::1 - - [26/Aug/2026 13:42:46] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [26/Aug/2026 13:43:01] "GET /login.html HTTP/1.1" 200 -
+::ffff:127.0.0.1 - - [26/Aug/2026 13:43:05] code 404, message File not found
+::ffff:127.0.0.1 - - [26/Aug/2026 13:43:05] "GET /favicon.ico HTTP/1.1" 404 -
+::ffff:127.0.0.1 - - [26/Aug/2026 13:43:16] "GET /login.html? HTTP/1.1" 200 -
