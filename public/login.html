@@ -30,40 +30,11 @@
     </div>
 
     <script>
-        // Resilient Storage Adapter for Supabase (localStorage -> sessionStorage -> Cookies)
-        const customStorage = {
-            getItem(key) {
-                try { const val = window.localStorage.getItem(key); if (val) return val; } catch (e) {}
-                try { const val = window.sessionStorage.getItem(key); if (val) return val; } catch (e) {}
-                try {
-                    const match = document.cookie.match(new RegExp('(^| )' + key + '=([^;]+)'));
-                    if (match) return decodeURIComponent(match[2]);
-                } catch (e) {}
-                return null;
-            },
-            setItem(key, value) {
-                try { window.localStorage.setItem(key, value); } catch (e) {}
-                try { window.sessionStorage.setItem(key, value); } catch (e) {}
-                try { document.cookie = key + "=" + encodeURIComponent(value) + "; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
-            },
-            removeItem(key) {
-                try { window.localStorage.removeItem(key); } catch (e) {}
-                try { window.sessionStorage.removeItem(key); } catch (e) {}
-                try { document.cookie = key + "=; path=/; max-age=0"; } catch (e) {}
-            }
-        };
-
-        // Safe Supabase Initialization with Custom Storage
+        // Standard Supabase Client Initialization
         let supabase = null;
         try {
             if (window.supabase && window.supabase.createClient) {
-                supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4', {
-                    auth: {
-                        storage: customStorage,
-                        persistSession: true,
-                        autoRefreshToken: true
-                    }
-                });
+                supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
             } else {
                 console.error("Supabase library did not load.");
             }
