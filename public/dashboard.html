@@ -257,7 +257,7 @@
 
             if (!supabase || !supabase.auth) {
                 console.error("Supabase not initialized");
-                window.location.href = 'login.html';
+                window.location.href = 'login_v2.html';
                 return;
             }
 
@@ -265,18 +265,18 @@
                 const { data: { session }, error } = await supabase.auth.getSession();
                 if (error || !session) {
                     console.warn("No active session found, redirecting to login...");
-                    window.location.href = 'login.html';
+                    window.location.href = 'login_v2.html';
                 }
             } catch (err) {
                 console.error("Failed to check auth session:", err);
-                window.location.href = 'login.html';
+                window.location.href = 'login_v2.html';
             }
         }
         checkAuth();
 
         async function logoutAdmin() {
             await supabase.auth.signOut();
-            window.location.href = 'login.html';
+            window.location.href = 'login_v2.html';
         }
 
         let allBookings = [];
