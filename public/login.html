@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login | Mobile Key Fob Pro</title>
+    <script>
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            alert('JavaScript Error: ' + msg + '\nLine: ' + lineNo);
+            return false;
+        };
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -30,19 +36,96 @@
     </div>
 
     <script>
-        // Standard Supabase Client Initialization
+        // Define handleLogin globally first
+        window.handleLogin = async function() {
+            try {
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const errorMsg = document.getElementById('error-msg');
+                const loginBtn = document.getElementById('login-btn');
+
+                const email = emailInput ? emailInput.value.trim() : '';
+                const password = passwordInput ? passwordInput.value.trim() : '';
+
+                if (!email || !password) {
+                    alert("Please enter both email and password.");
+                    return;
+                }
+
+                if (loginBtn) {
+                    loginBtn.disabled = true;
+                    loginBtn.textContent = 'Signing in...';
+                }
+                if (errorMsg) errorMsg.classList.add('hidden');
+
+                if (!supabase || !supabase.auth) {
+                    const msg = 'Connection error: Could not connect to Supabase. Check network/adblocker.';
+                    alert(msg);
+                    if (errorMsg) {
+                        errorMsg.textContent = msg;
+                        errorMsg.classList.remove('hidden');
+                    }
+                    if (loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Sign In';
+                    }
+                    return;
+                }
+
+                const authPromise = supabase.auth.signInWithPassword({ email, password });
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Sign in timed out.')), 6000)
+                );
+
+                const result = await Promise.race([authPromise, timeoutPromise]);
+
+                if (result && result.error) {
+                    const msg = "Login Error: " + result.error.message;
+                    alert(msg);
+                    if (errorMsg) {
+                        errorMsg.textContent = msg;
+                        errorMsg.classList.remove('hidden');
+                    }
+                    if (loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Sign In';
+                    }
+                } else if (result && result.data && result.data.session) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    const msg = 'Login failed: ' + JSON.stringify(result);
+                    alert(msg);
+                    if (errorMsg) {
+                        errorMsg.textContent = msg;
+                        errorMsg.classList.remove('hidden');
+                    }
+                    if (loginBtn) {
+                        loginBtn.disabled = false;
+                        loginBtn.textContent = 'Sign In';
+                    }
+                }
+            } catch (err) {
+                alert("CRITICAL ERROR: " + (err.message || err));
+                const loginBtn = document.getElementById('login-btn');
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Sign In';
+                }
+            }
+        };
+
+        // Initialize Supabase Client
         let supabase = null;
         try {
             if (window.supabase && window.supabase.createClient) {
                 supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
-            } else {
-                console.error("Supabase library did not load.");
             }
         } catch (e) {
             console.error("Failed to initialize Supabase:", e);
         }
 
-        // Check if user is already logged in
+        // Check session
         async function checkExistingSession() {
             if (!supabase || !supabase.auth) return;
             try {
@@ -50,77 +133,9 @@
                 if (session) {
                     window.location.href = 'dashboard.html';
                 }
-            } catch (err) {
-                console.error("Session check error:", err);
-            }
+            } catch (err) {}
         }
         checkExistingSession();
-
-        window.handleLogin = async function() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorMsg = document.getElementById('error-msg');
-            const loginBtn = document.getElementById('login-btn');
-
-            if (!email || !password) {
-                alert("Please enter both email and password.");
-                return;
-            }
-
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Signing in...';
-            errorMsg.classList.add('hidden');
-
-            if (!supabase || !supabase.auth) {
-                const msg = 'Connection error: Could not connect to Supabase.';
-                alert(msg);
-                errorMsg.textContent = msg;
-                errorMsg.classList.remove('hidden');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Sign In';
-                return;
-            }
-
-            try {
-                const authPromise = supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password,
-                });
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sign in timed out. Please check your network or credentials.')), 6000));
-
-                const result = await Promise.race([authPromise, timeoutPromise]);
-
-                if (result && result.error) {
-                    const msg = "Login Error: " + result.error.message;
-                    alert(msg);
-                    errorMsg.textContent = msg;
-                    errorMsg.classList.remove('hidden');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Sign In';
-                } else if (result && result.data && result.data.session) {
-                    if (window.location.protocol === 'file:') {
-                        alert("Login Successful! Note: Since you are on file:// protocol, your session might not persist. Please use http://localhost:3000.");
-                    }
-                    // Wait 300ms to ensure storage writes the session before redirecting
-                    await new Promise(resolve => setTimeout(resolve, 300));
-                    window.location.href = 'dashboard.html';
-                } else {
-                    const msg = 'Login failed. Response: ' + JSON.stringify(result);
-                    alert(msg);
-                    errorMsg.textContent = msg;
-                    errorMsg.classList.remove('hidden');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'Sign In';
-                }
-            } catch (err) {
-                const msg = err.message || 'An unexpected error occurred.';
-                alert("CRITICAL ERROR: " + msg);
-                errorMsg.textContent = msg;
-                errorMsg.classList.remove('hidden');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Sign In';
-            }
-        };
     </script>
 </body>
 </html>
