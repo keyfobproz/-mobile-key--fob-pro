@@ -33,6 +33,9 @@
         // Safe Supabase Initialization
         let supabase = null;
         try {
+            if (window.location.protocol === 'file:') {
+                console.warn("Detected file:// protocol. LocalStorage will not be shared between pages.");
+            }
             if (window.supabase && window.supabase.createClient) {
                 supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
             } else {
@@ -90,6 +93,9 @@
                     loginBtn.disabled = false;
                     loginBtn.textContent = 'Sign In';
                 } else if (result && result.data && result.data.session) {
+                    if (window.location.protocol === 'file:') {
+                        alert("Login Successful! Note: Since you are on file:// protocol, your session might not persist on the dashboard. Please use 'npm start' for the best experience.");
+                    }
                     window.location.href = 'dashboard.html';
                 } else {
                     errorMsg.textContent = 'Login failed. Please verify your credentials.';

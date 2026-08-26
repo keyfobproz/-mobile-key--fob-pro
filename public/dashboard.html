@@ -7,8 +7,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const { createClient } = window.supabase;
-        const supabase = createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
+        let supabase = null;
+        try {
+            if (window.supabase && window.supabase.createClient) {
+                supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
+            } else {
+                console.error("Supabase library did not load.");
+            }
+        } catch (e) {
+            console.error("Failed to initialize Supabase:", e);
+        }
         
         // Map Initialization
         let map;
@@ -242,8 +250,25 @@
     <script>
         // Check authentication on load
         async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
+            if (window.location.protocol === 'file:') {
+                alert("WARNING: You are opening this page directly as a file (file:// protocol). Session persistence will not work correctly in this mode. Please run 'npm start' in your terminal and open http://localhost:3000 instead.");
+                return;
+            }
+
+            if (!supabase || !supabase.auth) {
+                console.error("Supabase not initialized");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+                if (error || !session) {
+                    console.warn("No active session found, redirecting to login...");
+                    window.location.href = 'login.html';
+                }
+            } catch (err) {
+                console.error("Failed to check auth session:", err);
                 window.location.href = 'login.html';
             }
         }
