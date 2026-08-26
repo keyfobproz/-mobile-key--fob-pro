@@ -120,8 +120,10 @@
                     loginBtn.textContent = 'Sign In';
                 } else if (result && result.data && result.data.session) {
                     if (window.location.protocol === 'file:') {
-                        alert("Login Successful! Note: Since you are on file:// protocol, your session might not persist on the dashboard. Please use Python server for the best experience.");
+                        alert("Login Successful! Note: Since you are on file:// protocol, your session might not persist. Please use http://localhost:3000.");
                     }
+                    // Wait 300ms to ensure storage writes the session before redirecting
+                    await new Promise(resolve => setTimeout(resolve, 300));
                     window.location.href = 'dashboard.html';
                 } else {
                     errorMsg.textContent = 'Login failed. Response: ' + JSON.stringify(result);
