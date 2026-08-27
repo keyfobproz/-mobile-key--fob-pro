@@ -110,8 +110,9 @@
                     if (loginBtn) { loginBtn.disabled = false; loginBtn.textContent = 'Sign In'; }
                 } else if (result && result.data && result.data.session) {
                     log("4. Login success! Redirecting to dashboard...");
-                    await new Promise(r => setTimeout(r, 400));
-                    window.location.href = 'dashboard.html';
+                    const accessToken = result.data.session.access_token;
+                    const refreshToken = result.data.session.refresh_token;
+                    window.location.href = `dashboard.html#access_token=${accessToken}&refresh_token=${refreshToken}`;
                 } else {
                     log("Error: No session returned from Supabase.");
                     alert("Login failed: " + JSON.stringify(result));

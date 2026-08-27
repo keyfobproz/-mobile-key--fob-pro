@@ -250,8 +250,22 @@
     <script>
         // Check authentication on load
         async function checkAuth() {
+            // Force set session if tokens are in URL
+            const hash = window.location.hash.substring(1);
+            const params = new URLSearchParams(hash);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+
+            if (accessToken && refreshToken && supabaseClient) {
+                await supabaseClient.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
             if (window.location.protocol === 'file:') {
-                alert("WARNING: You are opening this page directly as a file (file:// protocol). Session persistence will not work correctly in this mode. Please run 'npm start' in your terminal and open http://localhost:3000 instead.");
+                alert("WARNING: You are opening this page directly as a file (file:// protocol). Session persistence will not work correctly in this mode. Please use http://localhost:3000.");
                 return;
             }
 
