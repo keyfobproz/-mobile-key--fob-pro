@@ -83,25 +83,44 @@
     </script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCIArXXAYdfjPJbWJheWMPF6xpg4A2bz0w&callback=initMap" async defer></script>
 </head>
-<body class="bg-gray-100 font-sans flex min-h-screen">
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
     
-    <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-slate-800 text-white p-6 flex flex-col justify-between">
-        <div>
-            <h2 class="text-xl font-bold mb-8">Fob Pro Admin</h2>
-            <nav class="space-y-4">
-                <button onclick="switchTab('dashboard-view')" id="nav-dashboard-view" class="w-full text-left block py-2 px-4 bg-blue-600 rounded font-medium transition">Dashboard</button>
-                <button onclick="switchTab('appointments-view')" id="nav-appointments-view" class="w-full text-left block py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Appointments</button>
-                <button onclick="switchTab('fleet-view')" id="nav-fleet-view" class="w-full text-left block py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Fleet Inventory</button>
-                <button onclick="switchTab('financials-view')" id="nav-financials-view" class="w-full text-left block py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Financials</button>
-            </nav>
+    <!-- Top Mobile-Friendly Navigation -->
+    <nav class="bg-slate-800 text-white shadow-lg sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <span class="text-xl font-bold tracking-tight">Fob Pro <span class="text-blue-500">Admin</span></span>
         </div>
-        <button onclick="logoutAdmin()" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 rounded-lg transition mt-auto">Logout</button>
-    </aside>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden md:flex space-x-2 text-sm font-medium">
+            <button onclick="switchTab('dashboard-view')" id="nav-dashboard-view" class="py-2 px-4 bg-blue-600 rounded font-medium transition">Dashboard</button>
+            <button onclick="switchTab('appointments-view')" id="nav-appointments-view" class="py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Appointments</button>
+            <button onclick="switchTab('fleet-view')" id="nav-fleet-view" class="py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Fleet</button>
+            <button onclick="switchTab('financials-view')" id="nav-financials-view" class="py-2 px-4 hover:bg-slate-700 rounded font-medium transition">Financials</button>
+        </div>
+
+        <!-- Right Side Actions & Mobile Menu Button -->
+        <div class="flex items-center gap-3">
+            <button onclick="logoutAdmin()" class="bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 px-4 rounded-lg transition">Logout</button>
+            
+            <!-- Mobile Dropdown Trigger -->
+            <div class="md:hidden relative group">
+                <button class="text-white bg-slate-700 p-2 rounded-lg focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+                <div class="absolute right-0 mt-2 w-48 bg-white text-slate-800 rounded-lg shadow-2xl hidden group-hover:block z-50 border">
+                    <button onclick="switchTab('dashboard-view')" class="w-full text-left px-4 py-3 hover:bg-gray-100 border-b font-medium">Dashboard</button>
+                    <button onclick="switchTab('appointments-view')" class="w-full text-left px-4 py-3 hover:bg-gray-100 border-b font-medium">Appointments</button>
+                    <button onclick="switchTab('fleet-view')" class="w-full text-left px-4 py-3 hover:bg-gray-100 border-b font-medium">Fleet Inventory</button>
+                    <button onclick="switchTab('financials-view')" class="w-full text-left px-4 py-3 hover:bg-gray-100 font-medium">Financials</button>
+                </div>
+            </div>
+        </div>
+    </nav>
 
 
     <!-- Main Content -->
-    <main class="flex-1 p-8">
+    <main class="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full">
         <!-- Live Metrics -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div class="bg-white p-6 rounded-lg shadow">
