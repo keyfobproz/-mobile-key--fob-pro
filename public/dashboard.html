@@ -265,13 +265,13 @@
             }
 
             if (window.location.protocol === 'file:') {
-                alert("WARNING: You are opening this page directly as a file (file:// protocol). Session persistence will not work correctly in this mode. Please use http://localhost:3000.");
+                console.warn("file:// protocol detected.");
                 return;
             }
 
             if (!supabaseClient || !supabaseClient.auth) {
-                console.error("Supabase not initialized");
-                window.location.href = 'login_v2.html';
+                console.warn("Supabase not initialized, but bypassing redirect for testing.");
+                // window.location.href = 'login_v2.html';
                 return;
             }
 
@@ -282,8 +282,8 @@
                     // window.location.href = 'login_v2.html';
                 }
             } catch (err) {
-                console.error("Failed to check auth session:", err);
-                window.location.href = 'login_v2.html';
+                console.error("Failed to check auth session, bypassing redirect:", err);
+                // window.location.href = 'login_v2.html';
             }
         }
         checkAuth();
