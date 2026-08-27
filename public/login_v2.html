@@ -112,6 +112,7 @@
                     log("4. Login success! Redirecting to dashboard...");
                     const accessToken = result.data.session.access_token;
                     const refreshToken = result.data.session.refresh_token;
+                    alert("Redirecting to dashboard. Token length: " + (accessToken ? accessToken.length : "NULL"));
                     window.location.href = `dashboard.html#access_token=${accessToken}&refresh_token=${refreshToken}`;
                 } else {
                     log("Error: No session returned from Supabase.");
