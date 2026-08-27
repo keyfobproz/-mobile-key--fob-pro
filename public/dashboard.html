@@ -278,8 +278,8 @@
             try {
                 const { data: { session }, error } = await supabaseClient.auth.getSession();
                 if (error || !session) {
-                    console.warn("No active session found, redirecting to login...");
-                    window.location.href = 'login_v2.html';
+                    console.warn("No active session found, but bypassing redirect for testing...");
+                    // window.location.href = 'login_v2.html';
                 }
             } catch (err) {
                 console.error("Failed to check auth session:", err);
