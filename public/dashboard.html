@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Mobile Key Fob Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabaseClient/supabaseClient-js@2"></script>
     <script>
-        let supabase = null;
+        let supabaseClient = null;
         try {
-            if (window.supabase && window.supabase.createClient) {
-                supabase = window.supabase.createClient('https://mdlprbqvdthlxvqgsxeb.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
+            if (window.supabaseClient && window.supabaseClient.createClient) {
+                supabaseClient = window.supabaseClient.createClient('https://mdlprbqvdthlxvqgsxeb.supabaseClient.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1kbHByYnF2ZHRobHh2cWdzeGViIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MDE1ODUsImV4cCI6MjEwMzE3NzU4NX0.y6mARxfENJy07waRztwluL7HIyv9LbVbOqiQVR--di4');
             } else {
                 console.error("Supabase library did not load.");
             }
@@ -255,14 +255,14 @@
                 return;
             }
 
-            if (!supabase || !supabase.auth) {
+            if (!supabaseClient || !supabaseClient.auth) {
                 console.error("Supabase not initialized");
                 window.location.href = 'login_v2.html';
                 return;
             }
 
             try {
-                const { data: { session }, error } = await supabase.auth.getSession();
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
                 if (error || !session) {
                     console.warn("No active session found, redirecting to login...");
                     window.location.href = 'login_v2.html';
@@ -275,7 +275,7 @@
         checkAuth();
 
         async function logoutAdmin() {
-            await supabase.auth.signOut();
+            await supabaseClient.auth.signOut();
             window.location.href = 'login_v2.html';
         }
 
@@ -376,7 +376,7 @@
         }
 
         async function loadBookings() {
-            const { data: bookings, error } = await supabase
+            const { data: bookings, error } = await supabaseClient
                 .from('bookings')
                 .select('*')
                 .order('created_at', { ascending: false });
@@ -454,7 +454,7 @@
             if (!selectEl) return;
             const newStatus = selectEl.value;
 
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('bookings')
                 .update({ status: newStatus })
                 .eq('id', id);
@@ -487,7 +487,7 @@
         });
 
         // Supabase Realtime Channel Listener
-        supabase
+        supabaseClient
             .channel('public:bookings')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, payload => {
                 loadBookings();
@@ -495,7 +495,7 @@
             .subscribe();
 
         async function loadFleet() {
-            const { data: fleet, error } = await supabase.from('fleet_inventory').select('*');
+            const { data: fleet, error } = await supabaseClient.from('fleet_inventory').select('*');
             if (error) return console.error('Fleet error:', error);
 
             const container = document.getElementById('fleet-inventory-container');
