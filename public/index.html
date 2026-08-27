@@ -293,10 +293,26 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Location Input -->
-            <div>
-                <label class="block text-sm font-semibold mb-2">Service Location</label>
-                <input type="text" id="address" placeholder="Enter address..." class="w-full p-3 border rounded-lg">
+            <!-- Location Input Fields -->
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Street Address</label>
+                    <input type="text" id="address" placeholder="123 Main St" class="w-full p-3 border rounded-lg">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">City</label>
+                        <input type="text" id="city" placeholder="City" class="w-full p-3 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">State</label>
+                        <input type="text" id="state" placeholder="State" class="w-full p-3 border rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Zip Code</label>
+                    <input type="text" id="zip" placeholder="Zip Code" class="w-full p-3 border rounded-lg">
+                </div>
             </div>
             <!-- Date/Time Grid -->
             <div>
@@ -330,11 +346,16 @@
             const phone = document.getElementById('customer-phone').value.trim();
             const email = document.getElementById('customer-email').value.trim();
             const address = document.getElementById('address').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const state = document.getElementById('state').value.trim();
+            const zip = document.getElementById('zip').value.trim();
 
-            if (!name || !phone || !address || !selectedTime || !yearSelect.value || yearSelect.value === 'Select Year') {
-                alert('Please fill out all required contact and location fields, and select a time slot.');
+            if (!name || !phone || !address || !city || !state || !zip || !selectedTime || !yearSelect.value || yearSelect.value === 'Select Year') {
+                alert('Please fill out all required contact and location fields (Street, City, State, Zip), and select a time slot.');
                 return;
             }
+
+            const fullAddress = `${address}, ${city}, ${state} ${zip}`;
 
             const bookBtn = document.getElementById('book-btn');
             bookBtn.disabled = true;
@@ -352,7 +373,7 @@
                 year: yearSelect.value,
                 make: make,
                 model: modelSelect.value,
-                address: address,
+                address: fullAddress,
                 time: selectedTime,
                 price: totalPrice,
                 status: 'Pending'
